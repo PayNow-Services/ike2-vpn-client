@@ -1,10 +1,10 @@
 FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libreswan \
-    iproute2 \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir -p /run/pluto /var/run/pluto
+    strongswan \
+    strongswan-charon \
+    libcharon-extra-plugins \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY start-vpn.sh /start-vpn.sh
 RUN chmod +x /start-vpn.sh
