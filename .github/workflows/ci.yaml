@@ -36,11 +36,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: 
-            - ${{ env.IMAGE_REPO }}:${{ github.sha }}
-            - ${{ env.IMAGE_REPO }}:latest
-          build-args: |
-            GITHUB_PAT=${{ secrets.REPO_READ_PAT }}
+          tags: ${{ env.IMAGE_REPO }}:${{ github.sha }},${{ env.IMAGE_REPO }}:latest
           platforms: 
           - linux/amd64
           - linux/arm64
