@@ -1,15 +1,12 @@
-FROM debian:bookworm-slim
+FROM debian:sid-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    strongswan \
-    strongswan-charon \
+    charon-cmd \
     libcharon-extra-plugins \
-    libstrongswan-extra-plugins \
     iproute2 \
-    file \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure charon-cmd for userspace IPsec
+# Configure for userspace IPsec
 RUN mkdir -p /etc/strongswan.d/charon-cmd && \
     printf '%s\n' \
     'charon-cmd {' \
@@ -17,10 +14,10 @@ RUN mkdir -p /etc/strongswan.d/charon-cmd && \
     '    kernel-netlink { load = no }' \
     '    kernel-libipsec { load = yes }' \
     '  }' \
-    '}' > /etc/strongswan.d/charon-cmd.conf
+    '}' > /etc/strongswan.d/charon-cmd/custom.conf
 
 # Create start script inline
-RUN printf '#!/bin/sh\necho "Testing..."\nwhich charon-cmd || echo "charon-cmd not found"\nfile /usr/bin/charon-cmd 2>/dev/null || file /usr/sbin/charon-cmd 2>/dev/null || echo "cannot find binary"\nsleep infinity\n' > /start-vpn.sh && \
+RUN printf '#!/bin/sh\nexec charon-cmd --host "$VPN_HOST" --identity "$VPN_IDENTITY" --psk-file /etc/ipsec.d/psk.txt --ike-proposal aes256-sha256-modp2048 --esp-proposal aes256-sha256\n' > /start-vpn.sh && \
     chmod +x /start-vpn.sh
 
 ENTRYPOINT ["/bin/sh", "/start-vpn.sh"]
