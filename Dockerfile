@@ -1,6 +1,10 @@
-FROM alpine:latest
+FROM debian:bookworm-slim
 
-RUN apk add --no-cache libreswan
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libreswan \
+    iproute2 \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /run/pluto /var/run/pluto
 
 COPY start-vpn.sh /start-vpn.sh
 RUN chmod +x /start-vpn.sh
