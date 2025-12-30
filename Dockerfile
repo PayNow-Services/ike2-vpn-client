@@ -5,32 +5,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     strongswan-charon \
     libcharon-extra-plugins \
     libstrongswan-extra-plugins \
+    iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Disable kernel-netlink, enable userspace kernel-libipsec
-# Configure for userspace IPsec without kernel netlink
-RUN echo "charon { \n\
-  install_routes = no \n\
-  install_virtual_ip = no \n\
+# Configure charon-cmd for userspace IPsec
+RUN mkdir -p /etc/strongswan.d/charon-cmd && \
+    echo "charon-cmd { \n\
   plugins { \n\
-    kernel-netlink { \n\
-      load = no \n\
-    } \n\
-    kernel-libipsec { \n\
-      load = yes \n\
-      allow_peer_ts = yes \n\
-    } \n\
-    kernel-pfkey { \n\
-      load = no \n\
-    } \n\
-    forecast { \n\
-      load = no \n\
-    } \n\
-    socket-default { \n\
-      load = yes \n\
-    } \n\
+    kernel-netlink { load = no } \n\
+    kernel-libipsec { load = yes } \n\
   } \n\
-}" > /etc/strongswan.d/charon-custom.conf
+}" > /etc/strongswan.d/charon-cmd.conf
 
 COPY start-vpn.sh /start-vpn.sh
 RUN chmod +x /start-vpn.sh
